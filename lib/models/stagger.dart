@@ -1,6 +1,6 @@
 class Stagger {
-  final String whole;
-  final String fraction;
+  String whole;
+  String fraction;
 
   Stagger({this.whole, this.fraction});
 }

@@ -3,6 +3,7 @@ import 'package:staggercalc/functions/calc_stagger.dart';
 import 'package:staggercalc/functions/format_stagger.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:staggercalc/models/fractions.dart';
+import 'models/pair.dart';
 
 void main() {
   runApp(MyApp());
@@ -35,13 +36,28 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counterB = 84;
   int _fractionIndexA = 0;
   int _fractionIndexB = 0;
+  int _maxSize = 150;
+  int _minSize = 0;
   double _stagger = 0.0;
-  String _formattedStagger = "";
+  String _formattedStagger = "0";
+  List<Pair> _history = [];
+  int _historyLength = 20;
+  var _pair;
 
-  void _incrementCounter() {
-    setState(() {
-      //_counter++;
-    });
+  int _changeCounter(bool increment, int size) {
+    if (increment) {
+      if (size == _maxSize) {
+        return _minSize;
+      } else {
+        return size += 1;
+      }
+    } else {
+      if (size == _minSize) {
+        return _maxSize;
+      } else {
+        return size -= 1;
+      }
+    }
   }
 
   void _calcStagger() {
@@ -49,6 +65,37 @@ class _MyHomePageState extends State<MyHomePage> {
         eighths[_fractionIndexB]);
     setState(() {
       _formattedStagger = formatStagger(_stagger);
+    });
+  }
+
+  void _resetValues() {
+    setState(() {
+      _counterA = 84;
+      _counterB = 84;
+      _fractionIndexA = 0;
+      _fractionIndexB = 0;
+      _calcStagger();
+    });
+  }
+
+  void _addToHistory() {
+    _pair = Pair(
+        tireA: _counterA.toString() +
+            (_fractionIndexA == 0 ? '' : ' ' + eighths[_fractionIndexA]),
+        tireB: _counterB.toString() +
+            (_fractionIndexB == 0 ? '' : ' ' + eighths[_fractionIndexB]),
+        tireDiff: _formattedStagger);
+
+    // _pair.tireA.whole = _counterA.toString();
+    // _pair.tireA.fraction = eighths[_fractionIndexA];
+    // _pair.tireB.whole = _counterB.toString();
+    // _pair.tireB.fraction = eighths[_fractionIndexA];
+    // _pair.tireDiff = _formattedStagger;
+
+    if (_history.length >= _historyLength) _history.removeAt(0);
+
+    setState(() {
+      _history.add(_pair);
     });
   }
 
@@ -62,9 +109,49 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              _formattedStagger,
-              style: Theme.of(context).textTheme.headline1,
+            // TODO History List
+
+            Container(
+              color: Colors.amber,
+              height: 50,
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _history.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: EdgeInsets.only(left: 40),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Text(_history[_history.length - 1 - index]
+                              .tireA
+                              .toString()),
+                          Text(_history[_history.length - 1 - index]
+                              .tireB
+                              .toString()),
+                          Text(_history[_history.length - 1 - index]
+                              .tireDiff
+                              .toString())
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _formattedStagger.split(' ')[0],
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                Text(
+                  _formattedStagger.split(' ').length == 2 ? '  ' + _formattedStagger.split(' ')[1] : '',
+                  style: Theme.of(context).textTheme.headline3,
+                ),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -80,21 +167,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   onSwipeUp: () {
                     setState(() {
-                      _counterA = _counterA + 1;
+                      _counterA = _changeCounter(true, _counterA);
                     });
                     _calcStagger();
                     print('A - Up: $_counterA');
                   },
                   onSwipeDown: () {
                     setState(() {
-                      _counterA = _counterA - 1;
+                      _counterA = _changeCounter(false, _counterA);
                     });
                     _calcStagger();
                     print('A - Down: $_counterA');
                   },
                   swipeConfiguration: SwipeConfiguration(
-                    verticalSwipeMinVelocity: 100.0,
-                    verticalSwipeMinDisplacement: 50.0,
+                    verticalSwipeMinVelocity: 80.0,
+                    verticalSwipeMinDisplacement: 20.0,
                     verticalSwipeMaxWidthThreshold: 100.0,
                   ),
                 ),
@@ -112,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _fractionIndexA = -1;
                     }
                     setState(() {
-                      _fractionIndexA = _fractionIndexA + 1;
+                      _fractionIndexA += 1;
                     });
                     print('A: $_fractionIndexA');
                     _calcStagger();
@@ -122,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _fractionIndexA = 8;
                     }
                     setState(() {
-                      _fractionIndexA = _fractionIndexA - 1;
+                      _fractionIndexA -= 1;
                     });
                     print('A: $_fractionIndexA');
                     _calcStagger();
@@ -149,21 +236,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   onSwipeUp: () {
                     setState(() {
-                      _counterB = _counterB + 1;
+                      _counterB = _changeCounter(true, _counterB);
                     });
                     _calcStagger();
                     print('B - Up: $_counterB');
                   },
                   onSwipeDown: () {
                     setState(() {
-                      _counterB = _counterB - 1;
+                      _counterB = _changeCounter(false, _counterB);
                     });
                     _calcStagger();
                     print('B - Down: $_counterB');
                   },
                   swipeConfiguration: SwipeConfiguration(
-                    verticalSwipeMinVelocity: 100.0,
-                    verticalSwipeMinDisplacement: 50.0,
+                    verticalSwipeMinVelocity: 80.0,
+                    verticalSwipeMinDisplacement: 20.0,
                     verticalSwipeMaxWidthThreshold: 100.0,
                   ),
                 ),
@@ -181,7 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _fractionIndexB = -1;
                     }
                     setState(() {
-                      _fractionIndexB = _fractionIndexB + 1;
+                      _fractionIndexB += 1;
                     });
                     print('B: $_fractionIndexB');
                     _calcStagger();
@@ -191,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _fractionIndexB = 8;
                     }
                     setState(() {
-                      _fractionIndexB = _fractionIndexB - 1;
+                      _fractionIndexB -= 1;
                     });
                     print('B: $_fractionIndexB');
                     _calcStagger();
@@ -204,24 +291,39 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            // ListWheelScrollView.useDelegate(
-            //   itemExtent: 50,
-            //   childDelegate: ListWheelChildBuilderDelegate(
-            //     builder: (context, index) => Container(
-            //       color: Colors.orange,
-            //       child: Center(
-            //         child: Text('Item $index'),
-            //       ),
-            //     ),
-            //   ),
-            // ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _calcStagger,
-        tooltip: 'Increment',
-        child: Icon(Icons.adb),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _calcStagger,
+      //   tooltip: 'Increment',
+      //   child: Icon(Icons.adb),
+      // ),
+      bottomNavigationBar: Container(
+        child: BottomAppBar(
+          child: Row(
+            children: [
+              Spacer(),
+              IconButton(
+                onPressed: () {
+                  _resetValues();
+                },
+                icon: Icon(Icons.refresh),
+                color: Colors.grey,
+              ),
+              Spacer(),
+              Spacer(),
+              IconButton(
+                onPressed: () {
+                  _addToHistory();
+                },
+                icon: Icon(Icons.save),
+                color: Colors.grey,
+              ),
+              Spacer(),
+            ],
+          ),
+        ),
       ),
     );
   }

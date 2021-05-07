@@ -6,5 +6,15 @@ String formatStagger(double decimal) {
   fraction = decimalToFraction(fraction);
   String whole = size.substring(0, size.indexOf('.'));
 
-  return whole + " " + fraction;
+  if (whole == '0') {
+    if (fraction != '') {
+      whole = '';
+    }
+  } else {
+    if (fraction != '') {
+      whole = whole + ' ';
+    }
+  }
+
+  return whole + fraction;
 }
