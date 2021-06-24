@@ -4,6 +4,7 @@ import 'package:staggercalc/functions/format_stagger.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:staggercalc/models/fractions.dart';
 import 'models/pair.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -12,6 +13,12 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    // Lock orientation in Portrait
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -107,13 +114,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            // TODO History List
-
+            // History List
             Container(
-              color: Colors.amber,
-              height: 50,
+              color: Colors.grey[400],
+              height: 72,
               width: MediaQuery.of(context).size.width,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -124,15 +130,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Center(
                       child: Column(
                         children: [
-                          Text(_history[_history.length - 1 - index]
-                              .tireA
-                              .toString()),
-                          Text(_history[_history.length - 1 - index]
-                              .tireB
-                              .toString()),
-                          Text(_history[_history.length - 1 - index]
-                              .tireDiff
-                              .toString())
+                          Text(
+                            _history[_history.length - 1 - index]
+                                .tireA
+                                .toString(),
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            _history[_history.length - 1 - index]
+                                .tireB
+                                .toString(),
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Text(
+                            _history[_history.length - 1 - index]
+                                .tireDiff
+                                .toString(),
+                            style: TextStyle(fontSize: 16),
+                          )
                         ],
                       ),
                     ),
@@ -140,25 +155,31 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
             ),
+            // Result
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   _formattedStagger.split(' ')[0],
-                  style: Theme.of(context).textTheme.headline1,
+                  //style: Theme.of(context).textTheme.headline1,
+                  style: TextStyle(fontSize: 140),
                 ),
                 Text(
-                  _formattedStagger.split(' ').length == 2 ? '  ' + _formattedStagger.split(' ')[1] : '',
-                  style: Theme.of(context).textTheme.headline3,
+                  _formattedStagger.split(' ').length == 2
+                      ? '  ' + _formattedStagger.split(' ')[1]
+                      : '',
+                  //style: Theme.of(context).textTheme.headline3,
+                  style: TextStyle(fontSize: 60),
                 ),
               ],
             ),
+            // Size A
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SwipeDetector(
                   child: Container(
-                    color: Colors.blue,
+                    //color: Colors.blue,
                     padding: EdgeInsets.all(20),
                     child: Text(
                       '$_counterA',
@@ -187,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 SwipeDetector(
                   child: Container(
-                    color: Colors.green,
+                    //color: Colors.green,
                     padding: EdgeInsets.all(20),
                     child: Text(
                       '${eighths[_fractionIndexA]}',
@@ -222,12 +243,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
+            // Size B
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SwipeDetector(
                   child: Container(
-                    color: Colors.blue[300],
+                    //color: Colors.blue[300],
                     padding: EdgeInsets.all(20),
                     child: Text(
                       '$_counterB',
@@ -256,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 SwipeDetector(
                   child: Container(
-                    color: Colors.green[300],
+                    //color: Colors.green[300],
                     padding: EdgeInsets.all(20),
                     child: Text(
                       '${eighths[_fractionIndexB]}',
